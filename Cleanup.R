@@ -40,13 +40,14 @@ picked_2016_vars <-
         "pk_spend_least" = V161514, # should be 1
         "pk_house_ctrl" = V161515, # should be 2
         "pk_senate_ctrl" = V161516, # should be 2
-        "survey_date_post" = V165002
+        "survey_date_post" = V165002,
+        "demog_age" = V161267,
+        "demog_marital" = V161268,
+        "demog_race" = V161310x,
     ) %>% 
     mutate(election_year = "2016", 
            survey_date_post = ifelse(str_detect(survey_date_post, "-"), NA, survey_date_post),
            across(everything(), ~labelled::remove_labels(.x)))
-
-
 
 picked_2020_vars <- 
     raw_2020 %>% 
@@ -84,7 +85,10 @@ picked_2020_vars <-
         "pk_spend_least" = V201645, # should be 1
         "pk_house_ctrl" = V201646, # should be 1
         "pk_senate_ctrl" = V201647, # should be 2
-        "survey_date_post" = V203078
+        "survey_date_post" = V203078,
+        "demog_age" = V201507x,
+        "demog_marital" = V201508,
+        "demog_race" = V201549x,
     ) %>% 
     mutate(election_year = "2020",
            survey_date_post = ifelse(str_detect(survey_date_post, "-"), NA, survey_date_post),
@@ -192,7 +196,30 @@ bind_rows(picked_2016_vars,
            edu_recode_f = factor(edu_recode_n, 
                                      levels = 1:6,
                                      labels = c("lt_hs", "hs_grad", "lt_bach", 
-                                                "bach", "master", "advanced"))
+                                                "bach", "master", "advanced")),
+           
+           
+           # marital status:
+           # 1 - 2 = currently married (spouse present/absent, respectively)
+           # 3-5 = formerly married (widowed, divorced, separated, respectively)
+           # 6 = never married
+           
+           demog_marital = case_when(demog_marital %in% 1:2 ~ "married",
+                                     demog_marital %in% 3:5 ~ "formerly married",
+                                     demog_marital == 6 ~ "never married"),
+           # race: 
+           # 1 = white, 
+           # 2 = black, 
+           # 3 = Asian, native Hawaiian or other Pacif Islr, 
+           # 4 = Native American or Alaska Native, 
+           # 5 = hispanic, 
+           # 6 = Other non-Hispanic incl multiple races
+           demog_race = case_when(demog_race == 1 ~ "White",
+                                  demog_race == 2 ~ "Black",
+                                  demog_race == 3 ~ "Asian (incl. native Hawaiian/other Pacif Islr)",
+                                  demog_race == 4 ~ "Native American/Alaskan",
+                                  demog_race == 5 ~ "Hispanic",
+                                  demog_race == 6 ~ "Pther (non-Hispanic incl multiple races)"),
            
     ) %>% 
     
@@ -286,7 +313,7 @@ bind_rows(picked_2016_vars,
                                 party == "gop" ~ .5,
                                 party == "ind" ~ 0),
         
-        cov_party3_f = factor(cov_party_n, levels = c(0, -.5, .5), labels = c("ind","dem", "gop")),
+        cov_party3_f = factor(cov_party3_n, levels = c(0, -.5, .5), labels = c("ind","dem", "gop")),
         
         # pol knowledge
         cov_pk =  rowSums(select(., contains("pk_"))),
@@ -369,7 +396,33 @@ bind_rows(picked_2016_vars,
                               ft_dem_cand_post < ft_gop_cand_post ~ "prefer_gop"), 
         
         pref_switcher = case_when(pre_pref == "prefer_dem" & post_pref == "prefer_gop" ~ "switcher",
-                                  pre_pref == "prefer_gop" & post_pref == "prefer_dem" ~ "switcher")
+                                  pre_pref == "prefer_gop" & post_pref == "prefer_dem" ~ "switcher"),
+        
+        # exclusions 
+        exclude = NA,
+        exclude = case_when(
+            
+            # did post-election survey
+            is.na(survey_date_post) & is.na(exclude) ~ 1, #12,550 to 11,101 (1,449)
+            
+            # is not missing DV
+            is.na(dv_cand_polz) & is.na(exclude) ~ 2,     #11,101 to 10,615 (486)
+            
+            # no expectation
+            is.na(cov_expect_f) & is.na(exclude) ~ 3,    # 10,615 to 10,135 (480)
+            
+            # missing PK
+            is.na(cov_pk) & is.na(exclude) ~ 4, # 10,135 to 9,774 (361)
+            
+            # missing education
+            is.na(cov_edu_recode_n) & is.na(exclude) ~ 5, # 9,774 to 9,592 (182)
+            
+            # missing party
+            is.na(cov_party3_f) & is.na(exclude) ~ 6, # 9,592 to 9,583 (9)
+            
+            # keep everyone else for primary analyses (filter to exclude == 0 for analyses)
+            TRUE ~ 0
+        )
     ) 
 
 full_df %>% select(contains("_f")) %>% colnames
@@ -400,7 +453,8 @@ colnames(attr(full_df$iv_cdv_f, "contrasts")) <- c("c1_difficulty", "c2_valence"
 
 df_analysis <- 
     full_df %>% 
-    select(starts_with("id_"),
+    select(exclude, 
+           starts_with("id_"),
            election_year,
            in_both_years,
            starts_with("dv_"),
@@ -411,7 +465,34 @@ df_analysis <-
            starts_with("cand_change"),
            pref_switcher,
            voted_early,
+           starts_with("demog_"),
            "cdv_groups" = choice_dif_valence,
-           party_strength) 
+           party_strength, 
+           survey_date_post) 
 
 # write_rds(df_analysis, "data/df_analysis.RDS")
+
+# missing party example (full_df needed) ----------------------------------
+
+full_df %>% # 58 raw
+    mutate(missing = ifelse(is.na(party_id), TRUE, FALSE)) %>% 
+    select(missing) %>% table
+
+full_df %>%  # 18 after removing those with no post
+    filter(is.na(ft_dem_cand_post)) %>% 
+    mutate(missing = ifelse(is.na(party_id), TRUE, FALSE)) %>% 
+    select(missing) %>% table
+
+full_df %>% # 18 after removing those with no post survey or DV
+    filter(is.na(survey_date_post), is.na(dv_cand_polz)) %>% 
+    mutate(missing = ifelse(is.na(party_id), TRUE, FALSE)) %>% 
+    select(missing) %>% table
+
+full_df %>% # 18 after removing those with no post survey, DV, or PK
+    filter(is.na(survey_date_post), 
+           is.na(dv_cand_polz),
+           is.na(cov_pk)) %>% 
+    mutate(missing = ifelse(is.na(party_id), TRUE, FALSE)) %>% 
+    select(missing) %>% table
+
+
