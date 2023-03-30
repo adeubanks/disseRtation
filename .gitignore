@@ -2,4 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# ignore anything in my "ignore" folder
 ~/ignore
+
+# ignore RDS files in the data folder
+~/data/*.RDS
