@@ -1,6 +1,11 @@
 
 
 
+# -------------------------------------------------------------------------
+
+
+
+
 full_df %>% 
     mutate(id = row_number()) %>% 
     select(id,
@@ -341,3 +346,27 @@ ggplot(aes(x = term, color = as.factor(election_year))) +
 #    facet_grid(~election_year) + 
     geom_hline(yintercept = 0) + 
     coord_flip()
+
+
+
+
+
+
+# demographics ------------------------------------------------------------
+
+
+# race: 
+# 1 = white, 
+# 2 = black, 
+# 3 = Asian, native Hawaiian or other Pacif Islr, 
+# 4 = Native American or Alaska Native, 
+# 5 = hispanic, 
+# 6 = Other non-Hispanic incl multiple races
+
+# marital status:
+# 1 & 2 = married,
+# 3-5 = widowed, divorced, separated
+# 6 = never married
+
+
+

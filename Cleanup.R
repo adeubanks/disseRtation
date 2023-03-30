@@ -216,10 +216,11 @@ bind_rows(picked_2016_vars,
            # 6 = Other non-Hispanic incl multiple races
            demog_race = case_when(demog_race == 1 ~ "White",
                                   demog_race == 2 ~ "Black",
-                                  demog_race == 3 ~ "Asian (incl. native Hawaiian/other Pacif Islr)",
+                                  demog_race == 3 ~ "Asian", #(incl. native Hawaiian/other Pacif Islr)
                                   demog_race == 4 ~ "Native American/Alaskan",
                                   demog_race == 5 ~ "Hispanic",
-                                  demog_race == 6 ~ "Pther (non-Hispanic incl multiple races)"),
+                                  demog_race == 6 ~ "Other" #(non-Hispanic incl multiple races
+                                  )
            
     ) %>% 
     
