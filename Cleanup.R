@@ -13,10 +13,10 @@ picked_2016_vars <-
         "ft_gop_cand_pre" = V161087, 
         "ft_dem_cand_post" = V162078, 
         "ft_gop_cand_post" = V162079, 
-        "ft_dem_vp_cand_pre" = V161090, 
-        "ft_gop_vp_cand_pre" = V161091, 
-        "ft_dem_vp_cand_post" = V162091, 
-        "ft_gop_vp_cand_post" = V162092, 
+        # "ft_dem_vp_cand_pre" = V161090, 
+        # "ft_gop_vp_cand_pre" = V161091, 
+        # "ft_dem_vp_cand_post" = V162091, 
+        # "ft_gop_vp_cand_post" = V162092, 
         "pref_pre" = V161064x, 
         "pref_post" = V162058x, 
         "soc_sup_talkcand" =  V162010, 
@@ -44,6 +44,7 @@ picked_2016_vars <-
         "demog_age" = V161267,
         "demog_marital" = V161268,
         "demog_race" = V161310x,
+        "demog_sex" = V161342
     ) %>% 
     mutate(election_year = "2016", 
            survey_date_post = ifelse(str_detect(survey_date_post, "-"), NA, survey_date_post),
@@ -58,10 +59,10 @@ picked_2020_vars <-
         "ft_gop_cand_pre" = V201152, 
         "ft_dem_cand_post" = V202143, 
         "ft_gop_cand_post" = V202144, 
-        "ft_dem_vp_cand_pre" = V201153, 
-        "ft_gop_vp_cand_pre" = V201154, 
-        "ft_dem_vp_cand_post" = V202156, 
-        "ft_gop_vp_cand_post" = V202157, 
+        # "ft_dem_vp_cand_pre" = V201153, 
+        # "ft_gop_vp_cand_pre" = V201154, 
+        # "ft_dem_vp_cand_post" = V202156, 
+        # "ft_gop_vp_cand_post" = V202157, 
         "pref_pre" = V201075x, 
         "pref_post" = V202105x, 
         "soc_sup_talkcand" = V202009, 
@@ -89,6 +90,7 @@ picked_2020_vars <-
         "demog_age" = V201507x,
         "demog_marital" = V201508,
         "demog_race" = V201549x,
+        "demog_sex" = V201600,
     ) %>% 
     mutate(election_year = "2020",
            survey_date_post = ifelse(str_detect(survey_date_post, "-"), NA, survey_date_post),
@@ -116,10 +118,10 @@ bind_rows(picked_2016_vars,
            ft_dem_cand_pre =  ifelse(ft_dem_cand_pre == 998, NA, ft_dem_cand_pre),# 998 = NA
            ft_dem_cand_post = ifelse(ft_dem_cand_post == 998, NA, ft_dem_cand_post), # 998 = NA
            ft_gop_cand_post = ifelse(ft_gop_cand_post == 998, NA, ft_gop_cand_post), # 998 = NA
-           ft_dem_vp_cand_pre = ifelse(ft_dem_vp_cand_pre >= 998, NA, ft_dem_vp_cand_pre),# 998 or 999 = NA
-           ft_gop_vp_cand_pre = ifelse(ft_gop_vp_cand_pre >= 998, NA, ft_gop_vp_cand_pre), # 998 or 999 = NA
-           ft_dem_vp_cand_post = ifelse(ft_dem_vp_cand_post >= 998, NA, ft_dem_vp_cand_post), # 998 or 999 = NA
-           ft_gop_vp_cand_post = ifelse(ft_gop_vp_cand_post >= 998, NA, ft_gop_vp_cand_post), # 998 or 999 = NA
+           # ft_dem_vp_cand_pre = ifelse(ft_dem_vp_cand_pre >= 998, NA, ft_dem_vp_cand_pre),# 998 or 999 = NA
+           # ft_gop_vp_cand_pre = ifelse(ft_gop_vp_cand_pre >= 998, NA, ft_gop_vp_cand_pre), # 998 or 999 = NA
+           # ft_dem_vp_cand_post = ifelse(ft_dem_vp_cand_post >= 998, NA, ft_dem_vp_cand_post), # 998 or 999 = NA
+           # ft_gop_vp_cand_post = ifelse(ft_gop_vp_cand_post >= 998, NA, ft_gop_vp_cand_post), # 998 or 999 = NA
            
            #pref_pre  end in 0 = Dem, 1 = GOP, 2 = other; starts with 1 = vote, 2 = intent, 3 = not going to vote
            voted_early = ifelse(pref_pre %in% 10:12, 1, 0), # 0 = no, 1 = yes
@@ -220,7 +222,12 @@ bind_rows(picked_2016_vars,
                                   demog_race == 4 ~ "Native American/Alaskan",
                                   demog_race == 5 ~ "Hispanic",
                                   demog_race == 6 ~ "Other" #(non-Hispanic incl multiple races
-                                  )
+                                  ),
+           
+           #gender: 1 = M, 2 = F, 3 = other
+           demog_sex = case_when(demog_sex == 1 ~ "Male",
+                                 demog_sex == 2 ~ "Female",
+                                 demog_sex == 3 ~ "Other")
            
     ) %>% 
     
@@ -231,15 +238,15 @@ bind_rows(picked_2016_vars,
         # directional change scores
         cand_change_dem = ft_dem_cand_post - ft_dem_cand_pre,
         cand_change_gop = ft_gop_cand_post - ft_gop_cand_pre,
-        vp_change_dem = ft_dem_vp_cand_post - ft_dem_vp_cand_pre,
-        vp_change_gop = ft_gop_vp_cand_post - ft_gop_vp_cand_pre,
+        # vp_change_dem = ft_dem_vp_cand_post - ft_dem_vp_cand_pre,
+        # vp_change_gop = ft_gop_vp_cand_post - ft_gop_vp_cand_pre,
         
        
         ##### primary vars
         
         #############  DV: cand polz = "affective polarization" 
         dv_cand_polz = abs(ft_dem_cand_post - ft_gop_cand_post) - abs(ft_dem_cand_pre - ft_gop_cand_pre),
-        dv_vp_polz = abs(ft_dem_vp_cand_post - ft_gop_vp_cand_post) - abs(ft_dem_vp_cand_pre - ft_gop_vp_cand_pre),
+       # dv_vp_polz = abs(ft_dem_vp_cand_post - ft_gop_vp_cand_post) - abs(ft_dem_vp_cand_pre - ft_gop_vp_cand_pre),
 
         
         #############   IVs: 
@@ -277,23 +284,24 @@ bind_rows(picked_2016_vars,
         iv_cdv_f = factor(choice_dif_valence,
                           levels = c("likes one", "likes both", "dislikes both")),
 
-        # proximal in-group support 
-        iv_prox_sup = rowSums(select(., contains("soc_sup"), contains("last_12"))),
         
-        # prox support #2: state "color"                   
+        # proximal in-group support: state "color"                   
             # who win state ==  1 = dem, 2 = gop, win close  == 1 =  by a little, 2 = by a lot,
             # so if the opposite cand is expected to win, multiply by -1 to create -2 , -1, 1, 2 scale,
             # then re-scale that to be 0 - 3. 
-        iv_prox_sup_state = case_when(election_year == 2016 & who_win_state == 2 ~ state_win_close,
-                                      election_year == 2016 & who_win_state == 1 ~ -1 * state_win_close,
-                                      election_year == 2020 & who_win_state == 1 ~ state_win_close,
-                                      election_year == 2020 & who_win_state == 2 ~ -1 * state_win_close),
-        
-        iv_prox_sup_state = case_when(iv_prox_sup_state == -2 ~ 0,
-                                      iv_prox_sup_state == -1 ~ 1,
-                                      iv_prox_sup_state == 1 ~ 2,
-                                      iv_prox_sup_state == 2 ~ 3),
-        
+       iv_prox_sup = case_when(election_year == 2016 & who_win_state == 2 ~ state_win_close,
+                               election_year == 2016 & who_win_state == 1 ~ -1 * state_win_close,
+                               election_year == 2020 & who_win_state == 1 ~ state_win_close,
+                               election_year == 2020 & who_win_state == 2 ~ -1 * state_win_close),
+       
+       iv_prox_sup = case_when(iv_prox_sup == -2 ~ 0,
+                               iv_prox_sup == -1 ~ 1,
+                               iv_prox_sup == 1 ~ 2,
+                               iv_prox_sup == 2 ~ 3),
+       
+        # proximal in-group support (alternate)
+        iv_prox_sup_alt = rowSums(select(., contains("soc_sup"), contains("last_12"))),
+       
         # Trivialization 
         iv_triv = rowMeans(select(., contains("make")), na.rm = T) - 1,
         
@@ -385,7 +393,7 @@ bind_rows(picked_2016_vars,
         
         ######## mean or median centering options
         cent_iv_prox_sup_m = iv_prox_sup - mean(iv_prox_sup, na.rm = T), 
-        cent_iv_prox_sup_state_m = iv_prox_sup_state - mean(iv_prox_sup_state, na.rm = T), 
+        cent_iv_prox_sup_alt_m = iv_prox_sup_alt - mean(iv_prox_sup_alt, na.rm = T), 
         cent_cov_pre_polz_m = cov_pre_polz - mean(cov_pre_polz, na.rm = T), 
         cent_cov_pk_m = cov_pk - mean(cov_pk, na.rm = T), 
         cent_cov_days_med = cov_days - median(cov_days, na.rm = T),
