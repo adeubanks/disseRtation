@@ -370,3 +370,82 @@ ggplot(aes(x = term, color = as.factor(election_year))) +
 
 
 
+df %>% 
+    filter(
+        exclude == 0,
+        cov_party_f %in% c("dem", "gop"),
+        is.na(pref_switcher),
+    ) %>% 
+    group_by(election_year) %>% 
+    nest() %>% 
+    mutate(
+        h1_h2_model_int = map(data,
+                             ~lm(dv_cand_polz ~ iv_cand_pref_f * iv_cdv_f + 
+                                     cov_expect_f + cov_pre_polz + cov_party_n + 
+                                     cov_pk + cov_edu_recode_n + cov_days,
+                                 data = .x)),
+    h1_h2_model = map(data,
+                      ~lm(dv_cand_polz ~ iv_cand_pref_f + iv_cdv_f + 
+                              cov_expect_f + cov_pre_polz + cov_party_n + 
+                              cov_pk + cov_edu_recode_n + cov_days,
+                          data = .x)),
+    
+    h1_h2_int_tidy = map(h1_h2_model_int, ~tidy(.x, conf.int = T)), 
+    h1_h2_tidy = map(h1_h2_model, ~tidy(.x, conf.int = T))) %>% 
+    select(contains("tidy"))
+
+
+
+    select(election_year, h1_h2_tidy) %>% 
+    unnest(h1_h2_tidy) %>% 
+ggplot(aes(x = term)) + theme_classic() + 
+    geom_pointrange(aes(y = estimate, ymin = conf.low, ymax = conf.high)) +
+    facet_grid(~election_year) + 
+    geom_hline(yintercept = 0) + 
+    coord_flip()
+
+
+
+
+    
+    
+    df %>% 
+        filter(
+            exclude == 0,
+            cov_party_f %in% c("dem", "gop"),
+            is.na(pref_switcher),
+        ) %>% group_by(election_year, iv_cand_pref_f, iv_cdv_f) %>% count
+    
+    
+    
+    
+    
+    df %>% 
+        filter(
+            exclude == 0,
+            cov_party_f %in% c("dem", "gop"),
+            is.na(pref_switcher),
+        ) %>% 
+        group_by(election_year) %>% 
+        nest() %>% 
+        mutate(h1_h2_model = map(data,
+                                 ~lm(dv_cand_polz ~ iv_cand_pref_f + iv_cdv_f + 
+                                         cov_expect_f + cov_pre_polz + cov_party_n + 
+                                         cov_pk + cov_edu_recode_n + cov_days,
+                                     data = .x)
+        ),
+        h1_h2_tidy = map(h1_h2_model, ~tidy(.x, conf.int = T))
+        
+        ) %>% 
+        select(election_year, h1_h2_tidy) %>% 
+        unnest(h1_h2_tidy) %>% 
+        print(n = 24) %>% 
+        write_csv("~/Desktop/h1h2.csv")
+    
+    
+    
+
+# old demo table ----------------------------------------------------------
+
+    
+    

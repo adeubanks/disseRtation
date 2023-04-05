@@ -1,3 +1,95 @@
+df %>% 
+    filter(exclude == 0) %>% 
+    select(election_year, 
+           cov_party3_f,
+           demog_age,
+           demog_sex,
+           demog_race,
+           cov_edu_recode_f,
+           demog_marital
+           # cov_pk,
+           # cov_days,
+           # voted_early,
+           # cov_voted_f,
+           # pref_switcher,
+           # cov_expect_f,
+           # cdv_groups
+    ) %>% 
+    mutate(
+        demog_marital = stringr::str_to_sentence(demog_marital),
+        cov_edu_recode_f = case_when(cov_edu_recode_f == "lt_hs" ~ "Less than high school",
+                                     cov_edu_recode_f == "hs_grad" ~ "High school grad",
+                                     cov_edu_recode_f == "lt_bach" ~ "Less than bachelor's",
+                                     cov_edu_recode_f == "bach" ~ "Bachelor's",
+                                     cov_edu_recode_f == "master" ~ "Master's",
+                                     cov_edu_recode_f == "advanced" ~ "Advanced degree"),
+        cov_edu_recode_f = factor(cov_edu_recode_f,
+                                  levels = c(
+                                      "Less than high school",
+                                      "High school grad",
+                                      "Less than bachelor's",
+                                      "Bachelor's",
+                                      "Master's",
+                                      "Advanced degree"
+                                  )),
+        cov_party3_f = factor(case_when(cov_party3_f == "ind" ~ "Ind.",
+                                        cov_party3_f == "gop" ~ "Rep.",
+                                        cov_party3_f == "dem" ~ "Dem."),
+                              levels = c("Dem.", "Rep.", "Ind."))
+        
+        #pref_switcher = case_when(is.na(pref_switcher) ~ "no", TRUE ~ "yes"),
+        #cdv_groups = stringr::str_to_sentence(cdv_groups),
+        #cov_expect_f = ifelse(cov_expect_f == "loser", "yes", "no"),
+    ) %>% 
+    tbl_strata(
+        strata = election_year,
+        .header = "**{strata}**  (N = {n})",
+        ~.x %>%
+            tbl_summary(by = cov_party3_f, 
+                        
+                        # type = cov_pk ~ "continuous",
+                        
+                        statistic = list(
+                            all_continuous() ~ "{mean} ({sd})",
+                            all_categorical() ~ "{n} ({p}%)"),
+                        
+                        sort =  list(
+                            c(demog_race, 
+                              demog_marital
+                              #cdv_groups, 
+                            ) ~ "frequency"
+                        ),
+                        
+                        label = 
+                            c(demog_age ~ "Age",
+                              demog_sex ~ "Sex",
+                              demog_marital ~ "Marital status",
+                              cov_party3_f ~ "Party",
+                              demog_race ~ "Race/ethnicity",
+                              cov_edu_recode_f ~ "Education"
+                              # cov_pk ~ "Political knowledge",
+                              # cov_days ~ "Post-election time (days)",
+                              # cov_voted_f ~ "Voted",
+                              # voted_early ~ "Voted early",
+                              # pref_switcher ~ "Switched preference",
+                              # cov_expect_f ~ "Expected loser",
+                              # cdv_groups ~ "Difficulty/valence group"
+                            ),
+                        
+                        missing = "no") %>% 
+            bold_labels() %>% 
+            italicize_levels() %>% 
+            modify_footnote(all_stat_cols() ~ NA) %>% 
+            modify_header(all_stat_cols() ~ "**{level}**<br>n = {n}") %>%
+            modify_caption("**Table 1. Respondent Demographics and Study Characteristics by Year and Party**") %>% 
+            remove_row_type(
+                variables = demog_sex,
+                type =  "level",
+                level_value = "Other"
+            )
+        
+    )  
+
 
 df_analysis %>% 
     filter(!is.na(dv_cand_polz)) %>% 
