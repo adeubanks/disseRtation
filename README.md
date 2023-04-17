@@ -1,10 +1,7 @@
 # disseRtation
 
-<<<<<<< HEAD
 This repo is for the project ["Morton's Fork" - Dissonance dissertation project" (osf.io/zkdmu)](https://osf.io/zkdmu/)
-=======
-This repo is for the project ["Morton's Fork" - Dissonance dissertation project" (osf.io/zkdmu)](osf.io/zkdmu)
->>>>>>> 2a4c95f50ad85df117b9c40cac3ab6425bc25106
+
 
 ## Scripts
 There are two scripts within the "scripts" folder. If you want to start from the raw data, see "Cleanup.R;" if you want to reproduce what is reported in the manuscript, see "Analysis.R."
