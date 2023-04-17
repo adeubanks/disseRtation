@@ -445,7 +445,167 @@ ggplot(aes(x = term)) + theme_classic() +
     
     
 
-# old demo table ----------------------------------------------------------
+
+# pasted may 6 ------------------------------------------------------------
+
+    haven::read_sav("data/anes_timeseries_2016.sav") %>% 
+        select(
+            "make_dif_pwr" = V162281, # 1 = "no dif", 5 = "great dif"
+            "make_dif_vote" = V162282, # 1 = "no dif", 5 = "great dif"
+            "survey_date_post" = V165002
+        ) %>% mutate(election_year = "2016",
+                     across(everything(), ~labelled::remove_labels(.x)),
+                     survey_date_post = ifelse(str_detect(survey_date_post, "-"), NA, survey_date_post)) %>% 
+        bind_rows(
+            
+            haven::read_sav("data/anes_timeseries_2020_spss_20220210.sav") %>% 
+                select(
+                    "make_dif_pwr" = V202431, # 1 = "no dif", 5 = "great dif"
+                    "make_dif_vote" = V202432, # 1 = "no dif", 5 = "great dif"
+                    "survey_date_post" = V203078
+                ) %>% 
+                mutate(election_year = "2020",
+                       across(everything(), ~labelled::remove_labels(.x)),
+                       survey_date_post = ifelse(str_detect(survey_date_post, "-"), NA, survey_date_post))
+        ) 
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0) %>% 
+        group_by(election_year) %>% 
+        nest %>% 
+        mutate(cor = map(data, 
+                         ~.x %>% select(make_dif_pwr, make_dif_vote) %>% cor(use = "pair"))) %>% 
+        unnest(cor)
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0) %>% 
+        group_by(election_year) %>% 
+        summarise(pwr = mean(make_dif_pwr, na.rm = T),
+                  vote = mean(make_dif_vote, na.rm = T),
+                  pwr_sd = sd(make_dif_pwr, na.rm = T),
+                  vote_sd = sd(make_dif_vote, na.rm = T),
+                  pwr_skew = psych::skew(make_dif_pwr, na.rm = T),
+                  vote_skew = psych::skew(make_dif_vote, na.rm = T))
+    ?skew
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >=0 )  %>% 
+        nest(data = everything()) %>% 
+        mutate(cor = map(data, 
+                         ~.x %>% select(make_dif_pwr, make_dif_vote) %>% cor(use = "pair"))) %>% 
+        unnest(cor)
+    
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0) %>%
+        ggplot(aes(x = make_dif_pwr)) + 
+        theme_classic() + 
+        geom_hist() +
+        facet_wrap(~election_year) 
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0) %>%
+        ggplot(aes(x = make_dif_vote)) + 
+        theme_classic() + 
+        geom_histogram() +
+        facet_wrap(~election_year) 
+    
+    
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0) %>% 
+        # group_by(election_year, make_dif_pwr, make_dif_vote) %>% 
+        # count %>% 
+        ggplot(aes(x = make_dif_pwr, y = make_dif_vote)) + 
+        #geom_text(aes(label = n)) + 
+        geom_jitter()+
+        geom_smooth(method = "lm", color = "black")+
+        facet_wrap(~election_year)
+    
+    
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0,
+               election_year == "2016") %>% 
+        select(make_dif_pwr, make_dif_vote) %>% 
+        cor(use = "pair")
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0,
+               election_year == "2020") %>% 
+        select(make_dif_pwr, make_dif_vote) %>% 
+        cor(use = "pair")
+    
+    
+    temp %>% 
+        filter(!is.na(survey_date_post),
+               make_dif_pwr >= 0,
+               make_dif_vote >= 0,
+               election_year == "2020") %>% 
+        select(make_dif_pwr, make_dif_vote) %>% 
+        psych::alpha()
+    
+    
+    # may 6th -----------------------------------------------------------------
+    
+    
+    df %>% 
+        group_by(election_year) %>% 
+        nest() %>% 
+        mutate(triv = map(data,
+                          ~lm(iv_triv ~ iv_cand_pref_f * iv_cdv_f, data = .)),
+               tidy_triv = map(triv, ~tidy(.x, conf.int = T))) %>% 
+        # unnest(tidy_triv) %>% 
+        #filter(model_type == "primary") %>% 
+        # arrange(model_name) %>%
+        # mutate(model_name = stringr::str_to_sentence(model_name),
+        #        name = paste(election_year, model_name, sep = ":")) %>% 
+        select(triv) %>% 
+        deframe() %>% 
+        
+        huxreg(ci_level = .95, error_format = "[{conf.low}, {conf.high}]")#,
+    
+    statistics = c("N" = "nobs",
+                   "R sq." = "r.squared",
+                   "Adj. R sq." = "adj.r.squared",
+                   "df",
+                   "df.residual"),
+    coefs = c(
+        "Intercept" = "(Intercept)",
+        "Preference" = "iv_cand_pref_floser",
+        "C1: Difficulty" = "iv_cdv_fc1_difficulty",
+        "C2: Valence" = "iv_cdv_fc2_valence",
+        "Party" = "cov_party_n",
+        "Expectation" = "cov_expect_n",
+        "Voted" = "cov_voted_n",
+        "Pre-pol" = "cent_cov_pre_polz_m",
+        "Pol. Knowledge" = "cent_cov_pk_m",
+        "Education" = "cov_edu_recode_n",
+        "Days" = "cov_days",
+        "Trivialization" = "iv_triv",
+        "Proximal Support" = "iv_prox_sup"
+        #"Support (alt)" = "iv_prox_sup"
+        #"Party (all 3)" = "cov_party3_n",
+        #  "Pref. x C1" = "iv_cand_pref_floser:iv_cdv_fc1_difficulty",
+        # "Pref. x C2" = "iv_cand_pref_floser:iv_cdv_fc2_valence"
+    ))  
+
+
 
     
     
