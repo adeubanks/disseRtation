@@ -35,7 +35,7 @@ There are two scripts within the "scripts" folder. If you want to start from the
 
 ### Stir in:<br>
 125 g. quick oats (~1.5 cups) <br>
-90 g. shredded coconut (~1 cup; can be sweetened or unsweetend, depending on how Southern you are)<br>
+90 g. shredded coconut (~1 cup; can be sweetened or unsweetened, depending on how Southern you are)<br>
 125 g. chopped pecans (~1 cup) <br>
 50 g. Rice Krispies cereal (~2 cups; stir gently after adding these) <br>
 
