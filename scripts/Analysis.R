@@ -629,7 +629,7 @@ number_format(primary_mod_table) <- 2
 quick_xlsx(primary_mod_table, file = "tables/primary_mod_table.xlsx")
 
 
-# marginal means plots ----------------------------------------------------
+# marginal means plots (fig 1) --------------------------------------------
 
 fig_1 <- 
     df %>% 
@@ -910,7 +910,9 @@ quick_xlsx(collapsed_mod_table, file = "tables/collapsed_mod_table_round3.xlsx")
 number_format(collapsed_mod_table) <- 2
 quick_xlsx(collapsed_mod_table, file = "tables/collapsed_mod_table.xlsx")
 
-### plot 
+
+# fig 2 -------------------------------------------------------------------
+
 fig_2 <- 
     df %>% 
     filter(exclude == 0) %>% 
@@ -974,7 +976,7 @@ fig_2 <-
          subtitle = "Marginal Means Collapsed Across Years",
          x = "Choice Difficulty (Valence)", y = "Post-Election Polarization",
          caption = "_Note._ Shown above are the means and 95% CIs of polarization 
-         across 2016 and 2020 (comcined) <br>broken down by candidate preference, 
+         across 2016 and 2020 (combined) <br>broken down by candidate preference, 
          choice difficulty/valence, party, and year.") 
 fig_2
 
@@ -1321,7 +1323,7 @@ df %>%  # 93% are missing 0 or 1
 
 
 
-# change score/direction --------------------------------------------------
+# change score/direction (fig 3) ---------------------------------------------
 
 fig_3 <- 
     df %>% 
