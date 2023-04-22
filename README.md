@@ -46,4 +46,11 @@ Bake until the edges *just* start to turn golden brown.<br>
 **Under-cooking would likely be preferable to over-cooking.** <br>
 This recipe makes approximately 3 batches of a dozen each. <br>
 While the first cookie sheet is in the oven, you can begin scooping and prepping the next cookie sheet. 
+<br>
+
+### Vegan alternative <br>
+*Note.* For a vegan version of these cookies that is just as delicious, only two small changes are made. First, omit butter and use 1 cup of butter flavored shortening. Second omit the eggs. In place of eggs add 1.5-2 tablespoons of melted coconut oil and approximately 2 ounces of club soda.** Just before the final step of stirring in Rice Krispies, if the cookie dough seems too dry, another splash of club soda can be added and mixed in. <br> 
+<br> 
+
+###### ** It's entirely possible just water works every bit as well as club soda, but to date, they have only been attempted with club soda. 
 
